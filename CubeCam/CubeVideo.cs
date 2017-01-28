@@ -3,7 +3,6 @@ using AForge.Video;
 using CubeCam.Cube;
 using CubeCam.Extensions;
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using static CubeCam.Extensions.ImageExtensions;
 
@@ -98,14 +97,14 @@ namespace CubeCam
             if (CurrentState != State.Scrambling)
             {
                 // Write time.
-                var elapsedTime = stopwatch.Elapsed;
+                var elapsedTime = cubeTimer.SolveTime;
                 var brush = CurrentState == State.Solved ? Brushes.LimeGreen : defaultTextBrush;
                 frame.WriteString(elapsedTime.ToSecondsString(), XPosition.Right, YPosition.Bottom, edgeOffset, edgeOffset, largeTextSize, brush);
             }
             if (CurrentState == State.Inspection)
             {
                 // Write inspection time remaining.
-                var elapsedTime = inspectionStopwatch.Elapsed;
+                var elapsedTime = cubeTimer.InspectionTime;
                 var remainingSeconds = (int)Math.Ceiling(15.0 - elapsedTime.TotalSeconds);
                 if (remainingSeconds < 0)
                 {
@@ -121,7 +120,7 @@ namespace CubeCam
             // Save to file.
             if (videoFileWriter.IsOpen &&
                 (CurrentState == State.Inspection || CurrentState == State.Solving ||
-                (CurrentState == State.Solved && afterSolveStopwatch.Elapsed.TotalSeconds <= 4.0)))
+                (CurrentState == State.Solved && cubeTimer.TimeSinceSolved.TotalSeconds <= 4.0)))
             {
                 videoFileWriter.WriteVideoFrame(frame);
             }
@@ -134,13 +133,13 @@ namespace CubeCam
             scramble = scrambles.GetNextScramble();
             currentState = State.Scrambling;
             ++solveNumber;
-            stopwatch.Reset();
+            cubeTimer.Reset();
         }
 
         private void StartInspection()
         {
             currentState = State.Inspection;
-            inspectionStopwatch.Restart();
+            cubeTimer.StartInspection();
             if (!videoFileWriter.IsOpen)
             {
                 videoFileWriter.Open(VideoFileName, Width, Height, 25, VideoCodec.MPEG4, 8*1024*1024);
@@ -150,15 +149,14 @@ namespace CubeCam
         private void StartSolve()
         {
             currentState = State.Solving;
-            stopwatch.Restart();
+            cubeTimer.StartSolve();
         }
 
         private void EndSolve()
         {
             currentState = State.Solved;
-            stopwatch.Stop();
-            OnNewTime?.Invoke(stopwatch.Elapsed);
-            afterSolveStopwatch.Restart();
+            cubeTimer.EndSolve();
+            OnNewTime?.Invoke(cubeTimer.SolveTime);
         }
 
         private State currentState = State.Solved;
@@ -167,11 +165,9 @@ namespace CubeCam
         private IScrambleSource scrambles = new RandomStateScrambler();
         private string scramble;
 
+        private CubeTimer cubeTimer = new CubeTimer();
+
         private VideoInput videoInput = new VideoInput();
         private VideoFileWriter videoFileWriter = new VideoFileWriter();
-
-        private Stopwatch stopwatch = new Stopwatch();
-        private Stopwatch inspectionStopwatch = new Stopwatch();
-        private Stopwatch afterSolveStopwatch = new Stopwatch();
     }
 }

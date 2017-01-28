@@ -98,6 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cube\CubeTimer.cs" />
     <Compile Include="Cube\IScrambleSource.cs" />
     <Compile Include="Cube\RandomStateScrambler.cs" />
     <Compile Include="Cube\ScrambleFile.cs" />

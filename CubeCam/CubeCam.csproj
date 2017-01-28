@@ -105,6 +105,7 @@
     <Compile Include="Cube\ScrambleFile.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Extensions\GraphicsExtensions.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ImageExtensions.cs" />
     <Compile Include="Video\IVideoInjection.cs" />
     <Compile Include="MainForm.cs">

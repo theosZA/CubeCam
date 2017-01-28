@@ -3,44 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CubeCam
 {
     class TimeAggregator
     {
-        public IEnumerable<TimeSpan> Times
-        {
-            get
-            {
-                return times;
-            }
-        }
+        public IEnumerable<TimeSpan> Times => times;
 
-        public TimeSpan Mean
-        {
-            get
-            {
-                return new TimeSpan((int)times.Select(time => time.Ticks).Average());
-            }
-        }
+        public TimeSpan Mean => new TimeSpan((int)TimeTicks.Average());
 
-        public TimeSpan AverageDropHighLow
-        {
-            get
-            {
-                if (times.Count < 3)
-                {
-                    return new TimeSpan(0); 
-                }
-                var ticksSequence = times.Select(time => time.Ticks);
-                var sum = ticksSequence.Sum();
-                var high = ticksSequence.Max();
-                var low = ticksSequence.Min();
-                var average = (sum - high - low) / (times.Count - 2);
-                return new TimeSpan(average);
-            }
-        }
+        public TimeSpan AverageDropHighLow => new TimeSpan((int)TimeTicks.AverageDropHighLow());
 
         public string TextListDropHighLow
         {
@@ -50,19 +22,8 @@ namespace CubeCam
                 {
                     return "";
                 }
-                var minTimeIndex = 0;
-                var maxTimeIndex = 0;
-                for (int i = 1; i < times.Count; ++i)
-                {
-                    if (times[i] < times[minTimeIndex])
-                    {
-                        minTimeIndex = i;
-                    }
-                    if (times[i] > times[maxTimeIndex])
-                    {
-                        maxTimeIndex = i;
-                    }
-                }
+                var minTimeIndex = times.MinIndex();
+                var maxTimeIndex = times.MaxIndex();
                 var text = new StringBuilder();
                 for (int i = 0; i < times.Count; ++i)
                 {
@@ -88,6 +49,8 @@ namespace CubeCam
         {
             times.Add(newTime);
         }
+
+        private IEnumerable<double> TimeTicks => times.Select(time => (double)time.Ticks);
 
         private IList<TimeSpan> times = new List<TimeSpan>();
     }

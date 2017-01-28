@@ -1,10 +1,9 @@
-﻿using AForge.Video;
-using Accord.Video.FFMPEG;
+﻿using Accord.Video.FFMPEG;
+using AForge.Video;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 
 namespace CubeCam
@@ -39,6 +38,7 @@ namespace CubeCam
         public CubeVideo()
         {
             VideoFileName = "cube.avi";
+            videoInput.OnNewFrame += OnNewInputFrame;
         }
 
         ~CubeVideo()
@@ -79,14 +79,7 @@ namespace CubeCam
         public void StartVideoSource(IVideoSource newVideoSource)
         {
             StopVideoSource();
-            for (int i = 0; i < frames.Length; ++i)
-            {
-                frames[i]?.Dispose();
-                frames[i] = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
-            }
-            videoSource = newVideoSource;
-            videoSource.NewFrame += OnNewSourceFrame;
-            videoSource.Start();
+            videoInput.StartRead(newVideoSource, Width, Height);
         }
 
         public void StopVideoSource()
@@ -95,34 +88,11 @@ namespace CubeCam
             {
                 videoFileWriter.Close();
             }
-
-            if (videoSource != null)
-            {
-                videoSource.SignalToStop();
-
-                // wait ~ 3 seconds
-                for (int i = 0; i < 30; i++)
-                {
-                    if (!videoSource.IsRunning)
-                        break;
-                    System.Threading.Thread.Sleep(100);
-                }
-
-                if (videoSource.IsRunning)
-                {
-                    videoSource.Stop();
-                }
-
-                videoSource = null;
-            }
+            videoInput.StopRead();
         }
 
-        private void OnNewSourceFrame(object sender, NewFrameEventArgs e)
+        private void OnNewInputFrame(Bitmap frame)
         {
-            frameIndex = 1 - frameIndex;
-            var frame = frames[frameIndex];
-            e.Frame.FastCopyTo(frame);
-            
             var defaultTextBrush = Brushes.Yellow;
             var textSize = Height / 30;
             var largeTextSize = Height / 15;
@@ -213,14 +183,11 @@ namespace CubeCam
         private string scramble = null;
         private IEnumerable<string> scrambles = null;
 
-        private IVideoSource videoSource = null;
+        private VideoInput videoInput = new VideoInput();
         private VideoFileWriter videoFileWriter = new VideoFileWriter();
 
         private Stopwatch stopwatch = new Stopwatch();
         private Stopwatch inspectionStopwatch = new Stopwatch();
         private Stopwatch afterSolveStopwatch = new Stopwatch();
-
-        private Bitmap[] frames = new Bitmap[2];
-        private int frameIndex = 0;
     }
 }

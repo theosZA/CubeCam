@@ -98,14 +98,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cube\CubeStateMachine.cs" />
     <Compile Include="Cube\CubeTimer.cs" />
     <Compile Include="Cube\IScrambleSource.cs" />
     <Compile Include="Cube\RandomStateScrambler.cs" />
     <Compile Include="Cube\ScrambleFile.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
-    <Compile Include="CubeVideo.cs" />
     <Compile Include="Extensions\GraphicsExtensions.cs" />
     <Compile Include="Extensions\ImageExtensions.cs" />
+    <Compile Include="Video\IVideoInjection.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -116,7 +117,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeAggregator.cs" />
     <Compile Include="Extensions\TimeSpanExtensions.cs" />
-    <Compile Include="VideoInput.cs" />
+    <Compile Include="Video\VideoInput.cs" />
+    <Compile Include="Video\VideoStreaming.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

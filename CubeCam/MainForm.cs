@@ -1,5 +1,7 @@
 ﻿using AForge.Video.DirectShow;
+using CubeCam.Cube;
 using CubeCam.Extensions;
+using CubeCam.Video;
 using System;
 using System.Drawing;
 using System.Text;
@@ -14,8 +16,9 @@ namespace CubeCam
             InitializeComponent();
             this.KeyPreview = true;
             this.KeyPress += OnKeyPress;
-            cubeVideo.OnNewFrame += OnNewFrame;
-            cubeVideo.OnNewTime += OnNewTime;
+            videoStreaming.OnNewFrame += OnNewFrame;
+            cubeStateMachine.OnNewTime += OnNewTime;
+            videoStreaming.VideoInjector = cubeStateMachine;
             RequestVideoSource();
         }
         
@@ -23,7 +26,7 @@ namespace CubeCam
         {
             if (e.KeyChar == ' ')
             {
-                cubeVideo.AdvanceState();
+                cubeStateMachine.AdvanceState();
             }
         }
 
@@ -53,15 +56,15 @@ namespace CubeCam
             VideoCaptureDeviceForm form = new VideoCaptureDeviceForm();
             if (form.ShowDialog(this) == DialogResult.OK)
             {
-                cubeVideo.Width = form.VideoDevice.VideoResolution.FrameSize.Width;
-                cubeVideo.Height = form.VideoDevice.VideoResolution.FrameSize.Height;
-                cubeVideo.StartVideoSource(form.VideoDevice);
+                videoStreaming.StartVideoSource(form.VideoDevice,
+                                                form.VideoDevice.VideoResolution.FrameSize.Width,
+                                                form.VideoDevice.VideoResolution.FrameSize.Height);
             }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            cubeVideo.StopVideoSource();
+            videoStreaming.StopVideoSource();
         }
 
         private void importScramblesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -74,7 +77,7 @@ namespace CubeCam
             };
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
-                cubeVideo.LoadScrambles(dialog.FileName);
+                cubeStateMachine.LoadScrambles(dialog.FileName);
             }
         }
 
@@ -90,11 +93,12 @@ namespace CubeCam
             };
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
-                cubeVideo.VideoFileName = dialog.FileName;
+                videoStreaming.VideoOutputFileName = dialog.FileName;
             }
         }
 
-        private CubeVideo cubeVideo = new CubeVideo();
+        private VideoStreaming videoStreaming = new VideoStreaming();
+        private CubeStateMachine cubeStateMachine = new CubeStateMachine();
         private TimeAggregator timeAggregator = new TimeAggregator();
     }
 }

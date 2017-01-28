@@ -3,7 +3,7 @@ using CubeCam.Extensions;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace CubeCam
+namespace CubeCam.Video
 {
     /// <summary>
     /// Video input from an AForge.Video.IVideoSource. Internally the frames are copied from

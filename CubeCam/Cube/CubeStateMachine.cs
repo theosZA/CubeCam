@@ -1,50 +1,15 @@
-﻿using Accord.Video.FFMPEG;
-using AForge.Video;
-using CubeCam.Cube;
-using CubeCam.Extensions;
+﻿using CubeCam.Extensions;
+using CubeCam.Video;
 using System;
 using System.Drawing;
 using static CubeCam.Extensions.ImageExtensions;
 
-namespace CubeCam
+namespace CubeCam.Cube
 {
-    class CubeVideo
+    internal class CubeStateMachine : IVideoInjector
     {
-        public delegate void FrameHandler(Bitmap newFrame);
-        public event FrameHandler OnNewFrame;
-
         public delegate void TimeHandler(TimeSpan newTime);
         public event TimeHandler OnNewTime;
-
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public string VideoFileName { get; set; }
-
-        public enum State
-        {
-            Scrambling,
-            Inspection,
-            Solving,
-            Solved
-        }
-        public State CurrentState
-        {
-            get
-            {
-                return currentState;
-            }
-        }
-
-        public CubeVideo()
-        {
-            VideoFileName = "cube.avi";
-            videoInput.OnNewFrame += OnNewInputFrame;
-        }
-
-        ~CubeVideo()
-        {
-            StopVideoSource();
-        }
 
         public void AdvanceState()
         {
@@ -73,35 +38,23 @@ namespace CubeCam
             scrambles = new ScrambleFile(fileName);
         }
 
-        public void StartVideoSource(IVideoSource newVideoSource)
+        public void UpdateFrame(Bitmap frame, out bool mustSaveFrame)
         {
-            StopVideoSource();
-            videoInput.StartRead(newVideoSource, Width, Height);
-        }
+            mustSaveFrame = (currentState == State.Inspection || currentState == State.Solving ||
+                            (currentState == State.Solved && cubeTimer.TimeSinceSolved.TotalSeconds <= 4.0));
 
-        public void StopVideoSource()
-        {
-            if (videoFileWriter.IsOpen)
-            {
-                videoFileWriter.Close();
-            }
-            videoInput.StopRead();
-        }
-
-        private void OnNewInputFrame(Bitmap frame)
-        {
             var defaultTextBrush = Brushes.Yellow;
-            var textSize = Height / 30;
-            var largeTextSize = Height / 15;
-            var edgeOffset = Height / 48;
-            if (CurrentState != State.Scrambling)
+            var textSize = frame.Height / 30;
+            var largeTextSize = frame.Height / 15;
+            var edgeOffset = frame.Height / 48;
+            if (currentState != State.Scrambling)
             {
                 // Write time.
                 var elapsedTime = cubeTimer.SolveTime;
-                var brush = CurrentState == State.Solved ? Brushes.LimeGreen : defaultTextBrush;
+                var brush = currentState == State.Solved ? Brushes.LimeGreen : defaultTextBrush;
                 frame.WriteString(elapsedTime.ToSecondsString(), XPosition.Right, YPosition.Bottom, edgeOffset, edgeOffset, largeTextSize, brush);
             }
-            if (CurrentState == State.Inspection)
+            if (currentState == State.Inspection)
             {
                 // Write inspection time remaining.
                 var elapsedTime = cubeTimer.InspectionTime;
@@ -116,16 +69,6 @@ namespace CubeCam
             frame.WriteString($"Solve #{solveNumber}", XPosition.Left, YPosition.Top, edgeOffset, edgeOffset, textSize, defaultTextBrush);
             // Write scramble.
             frame.WriteString(scramble, XPosition.Left, YPosition.Bottom, edgeOffset, edgeOffset, textSize, defaultTextBrush);
-
-            // Save to file.
-            if (videoFileWriter.IsOpen &&
-                (CurrentState == State.Inspection || CurrentState == State.Solving ||
-                (CurrentState == State.Solved && cubeTimer.TimeSinceSolved.TotalSeconds <= 4.0)))
-            {
-                videoFileWriter.WriteVideoFrame(frame);
-            }
-
-            OnNewFrame?.Invoke(frame);
         }
 
         private void StartScramble()
@@ -140,10 +83,6 @@ namespace CubeCam
         {
             currentState = State.Inspection;
             cubeTimer.StartInspection();
-            if (!videoFileWriter.IsOpen)
-            {
-                videoFileWriter.Open(VideoFileName, Width, Height, 25, VideoCodec.MPEG4, 8*1024*1024);
-            }
         }
 
         private void StartSolve()
@@ -159,15 +98,20 @@ namespace CubeCam
             OnNewTime?.Invoke(cubeTimer.SolveTime);
         }
 
+        private enum State
+        {
+            None,
+            Scrambling,
+            Inspection,
+            Solving,
+            Solved
+        }
         private State currentState = State.Solved;
-        private int solveNumber = 0;
 
         private IScrambleSource scrambles = new RandomStateScrambler();
         private string scramble;
+        private int solveNumber = 0;
 
         private CubeTimer cubeTimer = new CubeTimer();
-
-        private VideoInput videoInput = new VideoInput();
-        private VideoFileWriter videoFileWriter = new VideoFileWriter();
     }
 }

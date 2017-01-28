@@ -1,11 +1,10 @@
 ﻿using Accord.Video.FFMPEG;
 using AForge.Video;
+using CubeCam.Cube;
 using CubeCam.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using static CubeCam.Extensions.ImageExtensions;
 
 namespace CubeCam
@@ -72,10 +71,7 @@ namespace CubeCam
 
         public void LoadScrambles(string fileName)
         {
-            string[] lines = System.IO.File.ReadAllLines(fileName);
-            // Each line can begin with a preamble to distinguish each scramble (e.g. "5." to indicate scramble 5).
-            // We skip ahead to the first instance of a face character.
-            scrambles = lines.Select(line => line.Substring(line.IndexOfAny("DUFLBR".ToCharArray())));
+            scrambles = new ScrambleFile(fileName);
         }
 
         public void StartVideoSource(IVideoSource newVideoSource)
@@ -135,19 +131,7 @@ namespace CubeCam
 
         private void StartScramble()
         {
-            if (scrambles != null)
-            {
-                if (solveNumber >= scrambles.Count())
-                {
-                    // Out of scrambles.
-                    return;
-                }
-                scramble = scrambles.ElementAtOrDefault(solveNumber);
-            }
-            else
-            {
-                scramble = scrambler.GetNextScramble();
-            }
+            scramble = scrambles.GetNextScramble();
             currentState = State.Scrambling;
             ++solveNumber;
             stopwatch.Reset();
@@ -180,10 +164,8 @@ namespace CubeCam
         private State currentState = State.Solved;
         private int solveNumber = 0;
 
-        private Random random = new Random();
-        private RandomStateScrambler scrambler = new RandomStateScrambler();
-        private string scramble = null;
-        private IEnumerable<string> scrambles = null;
+        private IScrambleSource scrambles = new RandomStateScrambler();
+        private string scramble;
 
         private VideoInput videoInput = new VideoInput();
         private VideoFileWriter videoFileWriter = new VideoFileWriter();

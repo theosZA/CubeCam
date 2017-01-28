@@ -2,9 +2,13 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace CubeCam
+namespace CubeCam.Cube
 {
-    public class RandomStateScrambler
+    /// <summary>
+    /// A source of scrambles using a random state scrambler, that is a solvable cube is randomly chosen with equal probability
+    /// to all other solvalble cubes, and a scramble is returned that yields that cube.
+    /// </summary>
+    internal class RandomStateScrambler : IScrambleSource
     {
         public RandomStateScrambler(Random random = null)
         {

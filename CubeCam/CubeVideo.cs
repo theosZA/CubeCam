@@ -1,10 +1,12 @@
 ﻿using Accord.Video.FFMPEG;
 using AForge.Video;
+using CubeCam.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using static CubeCam.Extensions.ImageExtensions;
 
 namespace CubeCam
 {
@@ -102,7 +104,7 @@ namespace CubeCam
                 // Write time.
                 var elapsedTime = stopwatch.Elapsed;
                 var brush = CurrentState == State.Solved ? Brushes.LimeGreen : defaultTextBrush;
-                ImageText.WriteStringBottomRight(frame, elapsedTime.ToSecondsString(), edgeOffset, edgeOffset, largeTextSize, brush);
+                frame.WriteString(elapsedTime.ToSecondsString(), XPosition.Right, YPosition.Bottom, edgeOffset, edgeOffset, largeTextSize, brush);
             }
             if (CurrentState == State.Inspection)
             {
@@ -113,12 +115,12 @@ namespace CubeCam
                 {
                     remainingSeconds = 0;
                 }
-                ImageText.WriteStringBottomRight(frame, remainingSeconds.ToString(), edgeOffset, 2 * edgeOffset + largeTextSize, textSize, Brushes.OrangeRed);
+                frame.WriteString(remainingSeconds.ToString(), XPosition.Right, YPosition.Bottom, edgeOffset, 2 * edgeOffset + largeTextSize, textSize, Brushes.OrangeRed);
             }
             // Write solve number.
-            ImageText.WriteStringTopLeft(frame, $"Solve #{solveNumber}", edgeOffset, edgeOffset, textSize, defaultTextBrush);
+            frame.WriteString($"Solve #{solveNumber}", XPosition.Left, YPosition.Top, edgeOffset, edgeOffset, textSize, defaultTextBrush);
             // Write scramble.
-            ImageText.WriteStringBottomLeft(frame, scramble, edgeOffset, edgeOffset, textSize, defaultTextBrush);
+            frame.WriteString(scramble, XPosition.Left, YPosition.Bottom, edgeOffset, edgeOffset, textSize, defaultTextBrush);
 
             // Save to file.
             if (videoFileWriter.IsOpen &&

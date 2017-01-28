@@ -1,4 +1,5 @@
 ﻿using AForge.Video;
+using CubeCam.Extensions;
 using System.Drawing;
 using System.Drawing.Imaging;
 

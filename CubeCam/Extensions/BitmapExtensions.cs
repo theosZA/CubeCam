@@ -1,27 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CubeCam
+namespace CubeCam.Extensions
 {
-    static internal class BitmapHelper
+    internal static class BitmapExtensions
     {
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
         private static extern void CopyMemory(IntPtr dest, IntPtr src, int count);
 
-        static internal Bitmap FastCopy(this Bitmap src)
+        /// <summary>
+        /// Creates a new bitmap that is a deep copy of the given bitmap with a fast memory copy.
+        /// </summary>
+        /// <param name="src">The bitmap to copy.</param>
+        /// <returns>A new bitmap that is a copy of the original.</returns>
+        public static Bitmap FastCopy(this Bitmap src)
         {
             var dest = new Bitmap(src.Width, src.Height, src.PixelFormat);
             src.UncheckedFastCopyTo(dest);
             return dest;
         }
 
-        static internal void FastCopyTo(this Bitmap src, Bitmap dest)
+        /// <summary>
+        /// Copies one bitmap to another with a fast memory copy. The two bitmaps must have the exact
+        /// same dimensions (including pixel format).
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dest"></param>
+        public static void FastCopyTo(this Bitmap src, Bitmap dest)
         {
             if (src.Width != dest.Width || src.Height != dest.Height || src.PixelFormat != dest.PixelFormat)
             {
@@ -30,7 +37,7 @@ namespace CubeCam
             UncheckedFastCopyTo(src, dest);
         }
 
-        static private void UncheckedFastCopyTo(this Bitmap src, Bitmap dest)
+        private static void UncheckedFastCopyTo(this Bitmap src, Bitmap dest)
         {
             var srcData = src.LockBits(new Rectangle(0, 0, src.Width, src.Height), ImageLockMode.ReadOnly, src.PixelFormat);
             var destData = dest.LockBits(new Rectangle(0, 0, dest.Width, dest.Height), ImageLockMode.WriteOnly, dest.PixelFormat);

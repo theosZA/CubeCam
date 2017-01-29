@@ -169,7 +169,7 @@ namespace CubeCam.Cube
             Solved,
             Results
         }
-        private State currentState = State.Solved;
+        private State currentState = State.None;
 
         private IScrambleSource scrambles = new RandomStateScrambler();
         private string scramble;

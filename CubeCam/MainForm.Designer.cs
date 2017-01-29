@@ -34,6 +34,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importScramblesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveVideoStreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnWriteResults = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.videoDisplay)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +60,7 @@
             this.tbResults.Name = "tbResults";
             this.tbResults.ReadOnly = true;
             this.tbResults.ShowSelectionMargin = true;
-            this.tbResults.Size = new System.Drawing.Size(150, 480);
+            this.tbResults.Size = new System.Drawing.Size(150, 455);
             this.tbResults.TabIndex = 1;
             this.tbResults.Text = "";
             // 
@@ -96,11 +97,24 @@
             this.saveVideoStreamToolStripMenuItem.Text = "&Save Video Stream";
             this.saveVideoStreamToolStripMenuItem.Click += new System.EventHandler(this.saveVideoStreamToolStripMenuItem_Click);
             // 
+            // btnWriteResults
+            // 
+            this.btnWriteResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnWriteResults.Location = new System.Drawing.Point(658, 483);
+            this.btnWriteResults.Name = "btnWriteResults";
+            this.btnWriteResults.Size = new System.Drawing.Size(150, 23);
+            this.btnWriteResults.TabIndex = 2;
+            this.btnWriteResults.Text = "Write results to video";
+            this.btnWriteResults.UseVisualStyleBackColor = true;
+            this.btnWriteResults.Click += new System.EventHandler(this.btnWriteResults_Click);
+            this.btnWriteResults.KeyDown += new System.Windows.Forms.KeyEventHandler(this.btnWriteResults_KeyDown);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(820, 535);
+            this.Controls.Add(this.btnWriteResults);
             this.Controls.Add(this.tbResults);
             this.Controls.Add(this.videoDisplay);
             this.Controls.Add(this.menuStrip1);
@@ -124,6 +138,7 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importScramblesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveVideoStreamToolStripMenuItem;
+        private System.Windows.Forms.Button btnWriteResults;
     }
 }
 

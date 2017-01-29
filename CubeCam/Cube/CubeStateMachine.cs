@@ -1,7 +1,11 @@
-﻿using CubeCam.Extensions;
+﻿using AForge;
+using AForge.Imaging.Filters;
+using CubeCam.Extensions;
 using CubeCam.Video;
 using System;
 using System.Drawing;
+using System.Linq;
+using System.Text;
 using static CubeCam.Extensions.ImageExtensions;
 
 namespace CubeCam.Cube
@@ -38,8 +42,40 @@ namespace CubeCam.Cube
             scrambles = new ScrambleFile(fileName);
         }
 
+        public void StartWriteResults()
+        {
+            currentState = State.Results;
+            cubeTimer.StartResults();
+        }
+
+        public string GetTextSummary()
+        {
+            var text = new StringBuilder();
+            int count = 0;
+            foreach (var time in timeAggregator.Times)
+            {
+                ++count;
+                text.Append($"{count}. {time.ToSecondsString()}\n");
+            }
+            text.Append($"\nMean: {timeAggregator.Mean.ToSecondsString()}");
+            text.Append($"\nAverage (drop high & low): {timeAggregator.AverageDropHighLow.ToSecondsString()}");
+            text.Append($"\n\n{timeAggregator.TextListDropHighLow}");
+            return text.ToString();
+        }
+
         public void UpdateFrame(Bitmap frame, out bool mustSaveFrame)
         {
+            if (currentState == State.Results)
+            {
+                if (cubeTimer.ResultsTime.TotalSeconds < 10)
+                {
+                    WriteResults(frame);
+                    mustSaveFrame = true;
+                    return;
+                }
+                currentState = State.None;
+            }
+
             mustSaveFrame = (currentState == State.Inspection || currentState == State.Solving ||
                             (currentState == State.Solved && cubeTimer.TimeSinceSolved.TotalSeconds <= 4.0));
 
@@ -71,6 +107,31 @@ namespace CubeCam.Cube
             frame.WriteString(scramble, XPosition.Left, YPosition.Bottom, edgeOffset, edgeOffset, textSize, defaultTextBrush);
         }
 
+        private void WriteResults(Bitmap frame)
+        {
+            // Reduce brightness of incoming image to approximately 20% before we write on it.
+            LevelsLinear filter = new LevelsLinear();
+            filter.OutRed = new IntRange(0, 50);
+            filter.OutGreen = new IntRange(0, 50);
+            filter.OutBlue = new IntRange(0, 50);
+            filter.ApplyInPlace(frame);
+
+            var defaultBrush = Brushes.Yellow;
+            var maxRows = Math.Min(20, timeAggregator.Times.Count()) + 3;
+            frame.WriteLine($"Average (drop high & low): {timeAggregator.AverageDropHighLow.ToSecondsString()}", 0, maxRows, defaultBrush);
+            frame.WriteLine($"Mean: {timeAggregator.Mean.ToSecondsString()}", 1, maxRows, defaultBrush);
+            int currentIndex = 0;
+            int minIndex = timeAggregator.Times.MinIndex();
+            int maxIndex = timeAggregator.Times.MaxIndex();
+            foreach (var time in timeAggregator.Times)
+            {
+                var brush = currentIndex == minIndex ? Brushes.LimeGreen :
+                            currentIndex == maxIndex ? Brushes.OrangeRed : defaultBrush;
+                frame.WriteLine($"{currentIndex + 1}. {time.ToSecondsString()}", 3 + currentIndex, maxRows, brush);
+                ++currentIndex;
+            }
+        }
+
         private void StartScramble()
         {
             scramble = scrambles.GetNextScramble();
@@ -95,6 +156,7 @@ namespace CubeCam.Cube
         {
             currentState = State.Solved;
             cubeTimer.EndSolve();
+            timeAggregator.AddTime(cubeTimer.SolveTime);
             OnNewTime?.Invoke(cubeTimer.SolveTime);
         }
 
@@ -104,7 +166,8 @@ namespace CubeCam.Cube
             Scrambling,
             Inspection,
             Solving,
-            Solved
+            Solved,
+            Results
         }
         private State currentState = State.Solved;
 
@@ -113,5 +176,6 @@ namespace CubeCam.Cube
         private int solveNumber = 0;
 
         private CubeTimer cubeTimer = new CubeTimer();
+        private TimeAggregator timeAggregator = new TimeAggregator();
     }
 }

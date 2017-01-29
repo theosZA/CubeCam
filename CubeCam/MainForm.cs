@@ -1,10 +1,8 @@
 ﻿using AForge.Video.DirectShow;
 using CubeCam.Cube;
-using CubeCam.Extensions;
 using CubeCam.Video;
 using System;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CubeCam
@@ -37,18 +35,7 @@ namespace CubeCam
         
         private void OnNewTime(TimeSpan newTime)
         {
-            timeAggregator.AddTime(newTime);
-            var text = new StringBuilder();
-            int count = 0;
-            foreach (var time in timeAggregator.Times)
-            {
-                ++count;
-                text.Append($"{count}. {time.ToSecondsString()}\n");
-            }
-            text.Append($"\nMean: {timeAggregator.Mean.ToSecondsString()}");
-            text.Append($"\nAverage (drop high & low): {timeAggregator.AverageDropHighLow.ToSecondsString()}");
-            text.Append($"\n\n{timeAggregator.TextListDropHighLow}");
-            tbResults.Text = text.ToString();
+            tbResults.Text = cubeStateMachine.GetTextSummary();
         }
 
         private void RequestVideoSource()
@@ -97,8 +84,28 @@ namespace CubeCam
             }
         }
 
+        private void btnWriteResults_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                handledSpace = true;
+            }
+        }
+
+        private void btnWriteResults_Click(object sender, EventArgs e)
+        {
+            if (handledSpace)
+            {
+                handledSpace = false;
+                return;
+            }
+
+            cubeStateMachine.StartWriteResults();
+        }
+
+        private bool handledSpace = false;
+
         private VideoStreaming videoStreaming = new VideoStreaming();
         private CubeStateMachine cubeStateMachine = new CubeStateMachine();
-        private TimeAggregator timeAggregator = new TimeAggregator();
     }
 }

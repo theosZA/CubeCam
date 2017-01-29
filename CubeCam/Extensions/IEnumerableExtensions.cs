@@ -10,7 +10,7 @@ namespace CubeCam.Extensions
     {
         /// <summary>
         /// Returns the index of the minimum element in the given sequence. If two or more are tied, then the index of the
-        /// first tied element is returned.
+        /// first tied element is returned. Returns 0 for an empty sequence.
         /// </summary>
         public static int MinIndex<T>(this IEnumerable<T> sequence) where T: IComparable<T>
         {
@@ -31,7 +31,7 @@ namespace CubeCam.Extensions
 
         /// <summary>
         /// Returns the index of the maximum element in the given sequence. If two or more are tied, then the index of the
-        /// last tied element is returned.
+        /// last tied element is returned. Returns 0 for an empty sequence.
         /// </summary>
         public static int MaxIndex<T>(this IEnumerable<T> sequence) where T : IComparable<T>
         {
@@ -52,6 +52,7 @@ namespace CubeCam.Extensions
 
         /// <summary>
         /// Drops the lowest and highest values from the given sequence and returns the average of the remaining elements.
+        /// Returns 0 if the sequence is empty.
         /// </summary>
         public static double AverageDropHighLow(this IEnumerable<double> sequence)
         {
@@ -64,6 +65,18 @@ namespace CubeCam.Extensions
             var high = sequence.Max();
             var low = sequence.Min();
             return (sum - high - low) / (count - 2);
+        }
+
+        /// <summary>
+        /// Returns the average of the sequence. Returns 0 if the sequence is empty.
+        /// </summary>
+        public static double SafeAverage(this IEnumerable<double> sequence)
+        {
+            if (sequence.Count() == 0)
+            {
+                return 0.0;
+            }
+            return sequence.Average();
         }
     }
 }

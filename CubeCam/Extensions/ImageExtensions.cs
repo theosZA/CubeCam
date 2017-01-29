@@ -40,6 +40,26 @@ namespace CubeCam.Extensions
             graphic.Flush();
         }
 
+        /// <summary>
+        /// Writes text on to an image as if writing to a single line on a page. The text is auto-sized according to the provided parameters.
+        /// </summary>
+        /// <param name="image">The image to be written on.</param>
+        /// <param name="text">The text to be written.</param>
+        /// <param name="row">The row number - 0 is the top row of the page, maxRows-1 is the bottom row of the page.</param>
+        /// <param name="maxRows">The maximum number of rows on the page. The text is sized accordingly. The value is clamped between 12 and 30 for readability.</param>
+        /// <param name="brush">A brush to be used for writing to specify the colour for example.</param>
+        public static void WriteLine(this Image image, string text, int row, int maxRows, Brush brush)
+        {
+            // Clamp maxRows between 12 and 30 for readibility.
+            maxRows = Math.Max(12, Math.Min(30, maxRows));
+
+            var rowHeight = image.Height / (1.1f * maxRows);
+            var emSize = rowHeight / 1.2f;
+            var yOffset = row * rowHeight;
+            var xOffset = 0.1f * image.Width;
+            image.WriteString(text, XPosition.Left, YPosition.Top, xOffset, yOffset, emSize, brush);
+        }
+
         private static float OffsetToCoordinate(float xOffset, XPosition xPosition, int width)
         {
             switch (xPosition)

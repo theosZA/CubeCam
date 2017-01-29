@@ -10,7 +10,7 @@ namespace CubeCam
     {
         public IEnumerable<TimeSpan> Times => times;
 
-        public TimeSpan Mean => new TimeSpan((int)TimeTicks.Average());
+        public TimeSpan Mean => new TimeSpan((int)TimeTicks.SafeAverage());
 
         public TimeSpan AverageDropHighLow => new TimeSpan((int)TimeTicks.AverageDropHighLow());
 

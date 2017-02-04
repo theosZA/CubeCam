@@ -1,5 +1,6 @@
 ﻿using AForge.Video;
 using CubeCam.Extensions;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -11,6 +12,8 @@ namespace CubeCam.Video
     /// </summary>
     internal class VideoInput
     {
+        public double FramesPerSecond => frameCount / (stopwatch.ElapsedMilliseconds / 1000.0);
+
         public delegate void FrameHandler(Bitmap newFrame);
         /// <summary>
         /// Event for when a new frame is available from the video source. A deep copy of the
@@ -37,6 +40,7 @@ namespace CubeCam.Video
             source = newVideoSource;
             source.NewFrame += OnNewSourceFrame;
             source.Start();
+            stopwatch.Start();
         }
 
         /// <summary>
@@ -67,8 +71,8 @@ namespace CubeCam.Video
 
         private void OnNewSourceFrame(object sender, NewFrameEventArgs e)
         {
-            frameIndex = 1 - frameIndex;
-            var frame = frames[frameIndex];
+            var frame = frames[frameCount % 2];
+            ++frameCount;
             e.Frame.FastCopyTo(frame);
 
             OnNewFrame?.Invoke(frame);
@@ -76,6 +80,7 @@ namespace CubeCam.Video
 
         private IVideoSource source = null;
         private Bitmap[] frames = new Bitmap[2];
-        private int frameIndex = 0;
+        private int frameCount = 0;
+        private Stopwatch stopwatch = new Stopwatch();
     }
 }

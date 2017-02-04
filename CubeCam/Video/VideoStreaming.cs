@@ -1,5 +1,6 @@
 ﻿using Accord.Video.FFMPEG;
 using AForge.Video;
+using System;
 using System.Drawing;
 
 namespace CubeCam.Video
@@ -55,7 +56,8 @@ namespace CubeCam.Video
             {
                 if (!videoFileWriter.IsOpen)
                 {
-                    videoFileWriter.Open(VideoOutputFileName, width, height, 25, VideoCodec.MPEG4, 8 * 1024 * 1024);
+                    int frameRate = (int)Math.Round(videoInput.FramesPerSecond);
+                    videoFileWriter.Open(VideoOutputFileName, width, height, frameRate, VideoCodec.MPEG4, 8 * 1024 * 1024);
                 }
                 videoFileWriter.WriteVideoFrame(frame);
             }

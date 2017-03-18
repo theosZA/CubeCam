@@ -135,9 +135,12 @@ namespace CubeCam.Cube
         private void StartScramble()
         {
             scramble = scrambles.GetNextScramble();
-            currentState = State.Scrambling;
-            ++solveNumber;
-            cubeTimer.Reset();
+            if (scramble != null)
+            {
+                currentState = State.Scrambling;
+                ++solveNumber;
+                cubeTimer.Reset();
+            }
         }
 
         private void StartInspection()

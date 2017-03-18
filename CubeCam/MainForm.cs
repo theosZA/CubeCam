@@ -68,6 +68,15 @@ namespace CubeCam
             }
         }
 
+        private void enterScramblesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dialog = new ManualScrambleDialog();
+            if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+                cubeStateMachine.SetScrambles(dialog.Scrambles);
+            }
+        }
+
         private void saveVideoStreamToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var dialog = new SaveFileDialog

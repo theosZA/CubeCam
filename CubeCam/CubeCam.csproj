@@ -107,6 +107,12 @@
     <Compile Include="Extensions\GraphicsExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ImageExtensions.cs" />
+    <Compile Include="ManualScrambleDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManualScrambleDialog.Designer.cs">
+      <DependentUpon>ManualScrambleDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Video\IVideoInjection.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -122,6 +128,9 @@
     <Compile Include="Video\VideoStreaming.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ManualScrambleDialog.resx">
+      <DependentUpon>ManualScrambleDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

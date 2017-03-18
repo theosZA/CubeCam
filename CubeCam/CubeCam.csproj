@@ -102,7 +102,7 @@
     <Compile Include="Cube\CubeTimer.cs" />
     <Compile Include="Cube\IScrambleSource.cs" />
     <Compile Include="Cube\RandomStateScrambler.cs" />
-    <Compile Include="Cube\ScrambleFile.cs" />
+    <Compile Include="Cube\ScrambleList.cs" />
     <Compile Include="Extensions\BitmapExtensions.cs" />
     <Compile Include="Extensions\GraphicsExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />

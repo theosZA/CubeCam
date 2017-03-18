@@ -3,6 +3,7 @@ using AForge.Imaging.Filters;
 using CubeCam.Extensions;
 using CubeCam.Video;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -39,7 +40,12 @@ namespace CubeCam.Cube
 
         public void LoadScrambles(string fileName)
         {
-            scrambles = new ScrambleFile(fileName);
+            scrambles = ScrambleList.ReadFromFile(fileName);
+        }
+
+        public void SetScrambles(IEnumerable<string> scrambles)
+        {
+            this.scrambles = new ScrambleList(scrambles);
         }
 
         public void StartWriteResults()

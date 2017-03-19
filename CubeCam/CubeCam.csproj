@@ -100,6 +100,7 @@
   <ItemGroup>
     <Compile Include="Cube\CubeStateMachine.cs" />
     <Compile Include="Cube\CubeTimer.cs" />
+    <Compile Include="Overlay\CubeInfoFrameOverlay.cs" />
     <Compile Include="Cube\IScrambleSource.cs" />
     <Compile Include="Cube\RandomStateScrambler.cs" />
     <Compile Include="Cube\ScrambleList.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="ManualScrambleDialog.Designer.cs">
       <DependentUpon>ManualScrambleDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Overlay\OverlayElement.cs" />
     <Compile Include="Video\IVideoInjection.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
